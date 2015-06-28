@@ -21,7 +21,7 @@ Build
 ### Big friendly tool
 
 ```sh
-   cd bfb
+   cd bft
    make
 ```
 
@@ -39,4 +39,4 @@ TODO
 ----
 
    * [ ] Add schematics
-   * [ ] Switch to hex keycodes in bfb
+   * [ ] Switch to hex keycodes in bft
