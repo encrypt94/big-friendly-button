@@ -1,8 +1,9 @@
-DEVICE  = attiny85
-F_CPU   = 16500000 # in Hz
-FUSE_L  = 0xe1
-FUSE_H  = 0xdd
-AVRDUDE = avrdude -c usbasp -p $(DEVICE) # edit this line for your programmer
+DEVICE     = attiny85
+PROGRAMMER = usbasp   # edit this line for your programmer
+F_CPU      = 16500000 # in Hz
+FUSE_L     = 0xe1
+FUSE_H     = 0xdd
+AVRDUDE    = avrdude -c $(PROGRAMMER) -p $(DEVICE)
 
 CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0
 OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o
