@@ -1,7 +1,7 @@
 big-friendly-button
 ===================
 
-Just a one button keyboard with customizable keycode.
+Just a single button keyboard with customizable keycode.
 
 ![big-friendly-button](https://i.imgur.com/LjoTHO0.png)
 
@@ -34,3 +34,9 @@ Usage
    4. goto 3
 
 [0]: http://www.usb.org/developers/hidpage/Hut1_12v2.pdf#53 "Complete list of keycodes - page 53"
+
+TODO
+----
+
+   * [ ] Add schematics
+   * [ ] Switch to hex keycodes in bfb
