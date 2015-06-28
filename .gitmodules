@@ -1,0 +1,4 @@
+[submodule "firmware/usbdrv"]
+	path = firmware/usbdrv
+	url = https://github.com/encrypt94/v-usb
+	branch = usbdrv-only
