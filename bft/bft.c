@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 void usage() {
   puts("Usage: bft COMMAND [arg...]");
   puts("\nCommands:");
-  puts("   set [0...255]    set the keycode");
+  puts("   set [0...65535]  set the keycode");
   puts("   get              return current keycode");
 }
 
