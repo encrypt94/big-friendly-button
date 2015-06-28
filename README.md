@@ -29,6 +29,8 @@ Usage
 -----
 
    1. Attach the device to pc
-   2. Set the keycode with `bfb set <keycode>`
+   2. Set the keycode with `bfb set <keycode>`[0]
    3. Press the button
    4. goto 3
+
+[0]: http://www.usb.org/developers/hidpage/Hut1_12v2.pdf "Complete list of keycodes - page 53"
