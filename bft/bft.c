@@ -24,7 +24,7 @@ libusb_device_handle* open_device(int vid, char *vendor_name, int pid, char *pro
 void close_device(libusb_device_handle *handle);
 
 int main(int argc, char **argv) {
-  uint8_t command = NULL;
+  uint8_t command;
   uint16_t keycode = 0;
   if(argc < 2){
     usage();
