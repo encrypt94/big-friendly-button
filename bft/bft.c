@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
   }
   if(strcmp(argv[1], "set") == 0 && argc >= 3) {
     command = USB_SET_KEYCODE;
-    keycode = (uint16_t) atoi(argv[2]);
+    keycode = strtol(argv[2], NULL, 16);
   }
   else if(strcmp(argv[1], "get") == 0) {
     command = USB_GET_KEYCODE;
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
   else {
-    printf("%i\n",keycode);
+    printf("0x%04x\n",keycode);
   }
   close_device(device);
   return 0;
@@ -73,8 +73,8 @@ int main(int argc, char **argv) {
 void usage() {
   puts("Usage: bft COMMAND [arg...]");
   puts("\nCommands:");
-  puts("   set [0...65535]  set the keycode");
-  puts("   get              return current keycode");
+  puts("   set [0x00...0xFFFF]  set the keycode");
+  puts("   get                  return current keycode");
 }
 
 int bfb_send_command(libusb_device_handle* handle, uint8_t command, uint16_t* keycode) {
