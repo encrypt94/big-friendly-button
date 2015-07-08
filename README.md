@@ -39,4 +39,4 @@ TODO
 ----
 
    * [ ] Add schematics
-   * [ ] Switch to hex keycodes in bft
+   * [x] Switch to hex keycodes in bft
