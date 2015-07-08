@@ -38,5 +38,5 @@ Usage
 TODO
 ----
 
-   * [ ] Add schematics
+   * [x] Add schematics
    * [x] Switch to hex keycodes in bft
