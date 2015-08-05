@@ -35,7 +35,8 @@ int bfb_send_command(libusb_device_handle* handle, uint8_t command, uint16_t* ke
 libusb_device_handle* open_device(int vid, char *vendor_name, int pid, char *product_name);
 void close_device(libusb_device_handle *handle);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   uint8_t command;
   uint16_t keycode = 0;
   if(argc < 2){
@@ -53,7 +54,10 @@ int main(int argc, char **argv) {
     usage();
     exit(1);
   }
-  libusb_device_handle* device = open_device(USB_DEVICE_VID, USB_DEVICE_VENDOR_NAME, USB_DEVICE_PID, USB_DEVICE_PRODUCT_NAME);
+  libusb_device_handle* device = open_device(USB_DEVICE_VID,
+					     USB_DEVICE_VENDOR_NAME,
+					     USB_DEVICE_PID,
+					     USB_DEVICE_PRODUCT_NAME);
   if(device == NULL) {
     fputs("error: device not found\n", stderr);
     exit(1);
@@ -70,24 +74,31 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void usage() {
+void usage()
+{
   puts("Usage: bft COMMAND [arg...]");
   puts("\nCommands:");
   puts("   set [0x00...0xFFFF]  set the keycode");
   puts("   get                  return current keycode");
 }
 
-int bfb_send_command(libusb_device_handle* handle, uint8_t command, uint16_t* keycode) {
+int bfb_send_command(libusb_device_handle* handle, uint8_t command, uint16_t* keycode)
+{
   char buffer[BUFFER_SIZE];
   uint16_t k = command == USB_SET_KEYCODE ? *keycode : 0;
-  int  nbytes = libusb_control_transfer(handle, REQUEST_TYPE_VENDOR, command, k, 0, (unsigned char*)buffer, sizeof(buffer), USB_TIMEOUT);
+  int  nbytes = libusb_control_transfer(handle,
+					REQUEST_TYPE_VENDOR,
+					command, k, 0,
+					(unsigned char*)buffer, sizeof(buffer),
+					USB_TIMEOUT);
   if(nbytes > 0 && command == USB_GET_KEYCODE) {
     *keycode = buffer[0] |  buffer[1] << 8;
   }
   return nbytes;
 }
 
-libusb_device_handle* open_device(int vid, char *vendor_name, int pid, char *product_name) {
+libusb_device_handle* open_device(int vid, char *vendor_name, int pid, char *product_name)
+{
   libusb_device **devices;
   libusb_device *device;
   libusb_device_handle *handle = NULL;
@@ -110,13 +121,19 @@ libusb_device_handle* open_device(int vid, char *vendor_name, int pid, char *pro
 	continue;
       }
       // Get Vendor name from device
-      if(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, device_vendor_name, sizeof(device_vendor_name)) < 0 ) {
+      if(libusb_get_string_descriptor_ascii(handle,
+					    desc.iManufacturer,
+					    device_vendor_name,
+					    sizeof(device_vendor_name)) < 0 ) {
 	fprintf(stderr, "Warning: cannot get vendor name\n");
 	libusb_close(handle);
 	continue;
       }
       // Get Device name
-      if(libusb_get_string_descriptor_ascii(handle, desc.iProduct, device_product_name, sizeof(device_product_name)) < 0) {
+      if(libusb_get_string_descriptor_ascii(handle,
+					    desc.iProduct,
+					    device_product_name,
+					    sizeof(device_product_name)) < 0) {
 	fprintf(stderr, "Warning: cannot get vendor name\n");
 	libusb_close(handle);
 	continue;
@@ -140,7 +157,8 @@ libusb_device_handle* open_device(int vid, char *vendor_name, int pid, char *pro
   }
 }
 
-void close_device(libusb_device_handle *handle) {
+void close_device(libusb_device_handle *handle)
+{
   libusb_close(handle);
   libusb_exit(NULL);
 }

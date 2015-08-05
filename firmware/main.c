@@ -19,10 +19,6 @@
 #include "usbdrv.h"
 #include "hid-descriptor.h"
 
-#define STATE_WAIT         0
-#define STATE_SEND_KEY     1
-#define STATE_RELEASE_KEY  2
-
 #define USB_GET_KEYCODE 0x05
 #define USB_SET_KEYCODE 0x06
 
@@ -30,54 +26,28 @@
 
 #define KEYCODE_ADDR 0x02
 
+enum {
+  STATE_WAIT,
+  STATE_SEND_KEY,
+  STATE_RELEASE_KEY
+};
+
 typedef struct {
         uint8_t modifier;
         uint8_t reserved;
         uint8_t keycode[6];
 } keyboard_report_t;
 
+usbMsgLen_t usbFunctionSetup(uchar data[8]);
+static void calibrateOscillator(void);
+void hadUsbReset(void);
+
 static keyboard_report_t keyboard_report; // sent to PC
 static uint8_t idleRate; // repeat rate for keyboards
 static uint16_t keycode;
 
-usbMsgLen_t usbFunctionSetup(uchar data[8]) {
-  static uint8_t rep_buffer[2];
-  usbRequest_t *rq = (void *)data;
-
-  if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {
-    switch(rq->bRequest) {
-    case USBRQ_HID_GET_REPORT: // send "no keys pressed" if asked here
-      // wValue: ReportType (highbyte), ReportID (lowbyte)
-      usbMsgPtr = (void *)&keyboard_report; // we only have this one
-      keyboard_report.modifier = 0;
-      keyboard_report.keycode[0] = 0;
-      return sizeof(keyboard_report);
-    case USBRQ_HID_SET_REPORT: // if wLength == 1, should be LED state
-      return (rq->wLength.word == 1) ? USB_NO_MSG : 0;
-    case USBRQ_HID_GET_IDLE: // send idle rate to PC as required by spec
-      usbMsgPtr = &idleRate;
-      return 1;
-    case USBRQ_HID_SET_IDLE: // save idle rate as required by spec
-      idleRate = rq->wValue.bytes[1];
-      return 0;
-    }
-  }
-  // custom request
-  switch(rq->bRequest) {
-  case USB_GET_KEYCODE:
-    rep_buffer[0] = keycode & 0xff; //lo
-    rep_buffer[1] = keycode >> 8;   //hi
-    usbMsgPtr = rep_buffer;
-    return sizeof(rep_buffer);
-  case USB_SET_KEYCODE:
-    keycode = rq->wValue.word;
-    eeprom_write_word((uint16_t*)(KEYCODE_ADDR), keycode);
-    break;
-  }
-  return 0;
-}
-
-int main() {
+int main()
+{
   uint8_t calibrationValue, i;
   uint8_t state = STATE_WAIT;
   PORTB = _BV(BUTTON_PIN);
@@ -114,8 +84,8 @@ int main() {
     if(usbInterruptIsReady() && state != STATE_WAIT) {
       switch(state) {
       case STATE_SEND_KEY:
-	keyboard_report.keycode[0] = keycode & 0xff; //lo
-	keyboard_report.keycode[1] = keycode >> 8; //hi
+	keyboard_report.keycode[0] = keycode & 0xff; // lo
+	keyboard_report.keycode[1] = keycode >> 8;   // hi
 	state = STATE_RELEASE_KEY;
 	break;
       case STATE_RELEASE_KEY:
@@ -130,7 +100,48 @@ int main() {
   return 0;
 }
 
-static void calibrateOscillator(void) {
+
+usbMsgLen_t usbFunctionSetup(uchar data[8])
+{
+  static uint8_t rep_buffer[2];
+  usbRequest_t *rq = (void *)data;
+
+  if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {
+    switch(rq->bRequest) {
+    case USBRQ_HID_GET_REPORT: // send "no keys pressed" if asked here
+      // wValue: ReportType (highbyte), ReportID (lowbyte)
+      usbMsgPtr = (void *)&keyboard_report; // we only have this one
+      keyboard_report.modifier = 0;
+      keyboard_report.keycode[0] = 0;
+      return sizeof(keyboard_report);
+    case USBRQ_HID_SET_REPORT: // if wLength == 1, should be LED state
+      return (rq->wLength.word == 1) ? USB_NO_MSG : 0;
+    case USBRQ_HID_GET_IDLE: // send idle rate to PC as required by spec
+      usbMsgPtr = &idleRate;
+      return 1;
+    case USBRQ_HID_SET_IDLE: // save idle rate as required by spec
+      idleRate = rq->wValue.bytes[1];
+      return 0;
+    }
+  }
+  // custom request
+  switch(rq->bRequest) {
+  case USB_GET_KEYCODE:
+    rep_buffer[0] = keycode & 0xff; // lo
+    rep_buffer[1] = keycode >> 8;   // hi 
+    usbMsgPtr = rep_buffer;
+    return sizeof(rep_buffer);
+  case USB_SET_KEYCODE:
+    keycode = rq->wValue.word;
+    eeprom_write_word((uint16_t*)(KEYCODE_ADDR), keycode);
+    break;
+  }
+  return 0;
+}
+
+
+static void calibrateOscillator(void)
+{
   uchar step = 128;
   uchar trialValue = 0, optimumValue;
   int   x, optimumDev, targetValue = (unsigned)(1499 * (double)F_CPU / 10.5e6 + 0.5);
@@ -161,7 +172,8 @@ static void calibrateOscillator(void) {
   OSCCAL = optimumValue;
 }
 
-void hadUsbReset(void) {
+void hadUsbReset(void)
+{
   calibrateOscillator();
   eeprom_write_byte(0, OSCCAL);   /* store the calibrated value in EEPROM */
 }
